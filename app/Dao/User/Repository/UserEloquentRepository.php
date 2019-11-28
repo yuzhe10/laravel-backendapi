@@ -8,18 +8,17 @@
 
 namespace App\Dao\User\Repository;
 
+use App\Dao\Common\Traits\RepositoryTrait;
 use App\Dao\User\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class UserEloquentRepository implements UserRepository {
-    private $user;
-    public function __construct(User $user) {
-        $this->user = $user;
-    }
+    use RepositoryTrait;
 
-    public function getOne(int $id) {
-        return $this->user::find($id);
+    public function __construct(User $user) {
+        $this->model = $user;
     }
 
     public function create(array $attributes) : User {
@@ -30,5 +29,12 @@ class UserEloquentRepository implements UserRepository {
             'api_token' => Str::random(80),
             'remember_token' => Str::random(10),
         ]);
+    }
+
+    public function logout(): bool {
+        // refresh  token process
+        $user = Auth::user();
+        $user->api_token = User::generateApiToken();
+        return $user->save();
     }
 }

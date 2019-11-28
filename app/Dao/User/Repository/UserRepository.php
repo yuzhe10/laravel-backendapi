@@ -12,5 +12,5 @@ namespace App\Dao\User\Repository;
 use App\Dao\Common\Repository\CommonRepository;
 
 interface UserRepository extends CommonRepository {
-
+    public function logout() : bool ;
 }
