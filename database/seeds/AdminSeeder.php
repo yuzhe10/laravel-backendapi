@@ -1,5 +1,6 @@
 <?php
 
+use App\Dao\User\Role;
 use App\Dao\User\User;
 use Illuminate\Database\Seeder;
 use Faker\Generator as Faker;
@@ -14,17 +15,23 @@ class AdminSeeder extends Seeder
      */
     public function run(Faker $faker)
     {
-        if (User::where('name', 'admin')->first() != null) {
-            return;
-        }
-        User::create([
-            'name' => 'admin',
+        $admin = User::where('name', 'admin')->first();
+        if ($admin == null) {
+            $admin = User::create([
+                'name' => 'admin',
+                'phone' => '18612307258',
+                'phone_verified_at' => now(),
 //            'email' => $faker->unique()->safeEmail,
-            'email' => 'admin@yuzhe.wang',
-            'email_verified_at' => now(),
-            'password' => Hash::make('1234'),
-            'api_token' => Str::random(80),
-            'remember_token' => Str::random(10),
-        ]);
+                'email' => 'admin@yuzhe.wang',
+                'email_verified_at' => now(),
+                'password' => Hash::make('1234'),
+                'api_token' => User::generateApiToken(),
+                'remember_token' => Str::random(10),
+            ]);
+        }
+        $role = Role::findOrCreate('Super Admin');
+        if (!$admin->hasRole($role)) {
+            $admin->assignRole($role);
+        }
     }
 }
